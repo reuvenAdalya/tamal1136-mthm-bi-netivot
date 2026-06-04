@@ -7999,6 +7999,8 @@
                 /* דסקטופ: כפתור שמאלי = קדימה | כפתור ימני = אחורה */
                 document.body.addEventListener('click', onSlideClick);
                 document.body.addEventListener('contextmenu', onSlideContextMenu);
+                document.body.addEventListener('touchstart', onTouchStart, { passive: true });
+                document.body.addEventListener('touchend', onTouchEnd, { passive: true });
             }
 
             function exitPresentation() {
@@ -8009,6 +8011,8 @@
 
                 document.body.removeEventListener('click', onSlideClick);
                 document.body.removeEventListener('contextmenu', onSlideContextMenu);
+                document.body.removeEventListener('touchstart', onTouchStart);
+                document.body.removeEventListener('touchend', onTouchEnd);
 
                 slideGroups = [];
                 currentSlide = 0;
@@ -8094,30 +8098,6 @@
                     exitPresentation();
                 }
             });
-
-            /* ---- touch swipe ---- */
-            let touchStartX = 0;
-            let touchEndX = 0;
-            
-            document.addEventListener('touchstart', e => {
-                if (!document.body.classList.contains('presentation-mode')) return;
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            document.addEventListener('touchend', e => {
-                if (!document.body.classList.contains('presentation-mode')) return;
-                touchEndX = e.changedTouches[0].screenX;
-                const swipeDistance = touchEndX - touchStartX;
-                const minSwipeDistance = 50; // threshold
-                
-                if (swipeDistance < -minSwipeDistance) {
-                    // Swipe left -> קדימה (המסך זז שמאלה, אנחנו עוברים לשקף הבא)
-                    advance();
-                } else if (swipeDistance > minSwipeDistance) {
-                    // Swipe right -> אחורה (המסך זז ימינה, אנחנו עוברים לשקף הקודם)
-                    retreat();
-                }
-            }, { passive: true });
 
             /* ---- nav bar buttons ---- */
             document.getElementById('nextSlideBtn').addEventListener('click', advance);
