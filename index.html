@@ -8096,25 +8096,25 @@
             });
 
             /* ---- touch swipe ---- */
-            let touchStartY = 0;
-            let touchEndY = 0;
+            let touchStartX = 0;
+            let touchEndX = 0;
             
             document.addEventListener('touchstart', e => {
                 if (!document.body.classList.contains('presentation-mode')) return;
-                touchStartY = e.changedTouches[0].screenY;
+                touchStartX = e.changedTouches[0].screenX;
             }, { passive: true });
 
             document.addEventListener('touchend', e => {
                 if (!document.body.classList.contains('presentation-mode')) return;
-                touchEndY = e.changedTouches[0].screenY;
-                const swipeDistance = touchEndY - touchStartY;
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeDistance = touchEndX - touchStartX;
                 const minSwipeDistance = 50; // threshold
                 
-                if (swipeDistance > minSwipeDistance) {
-                    // Swipe down -> קדימה
+                if (swipeDistance < -minSwipeDistance) {
+                    // Swipe left -> קדימה (המסך זז שמאלה, אנחנו עוברים לשקף הבא)
                     advance();
-                } else if (swipeDistance < -minSwipeDistance) {
-                    // Swipe up -> אחורה
+                } else if (swipeDistance > minSwipeDistance) {
+                    // Swipe right -> אחורה (המסך זז ימינה, אנחנו עוברים לשקף הקודם)
                     retreat();
                 }
             }, { passive: true });
