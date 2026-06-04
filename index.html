@@ -8071,8 +8071,10 @@
                 lastTouchTime = Date.now();
                 const dx = e.changedTouches[0].clientX - touchStartX;
                 if (Math.abs(dx) < 40) {
-                    /* short tap – advance */
-                    if (!e.target.closest('a, button, input, select, textarea')) advance();
+                    /* short tap – advance (desktop only, disabled on mobile) */
+                    if (isDesktop()) {
+                        if (!e.target.closest('a, button, input, select, textarea')) advance();
+                    }
                 } else if (dx > 0) {
                     /* swipe right (RTL: going back) */
                     retreat();
