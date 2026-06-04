@@ -8023,8 +8023,8 @@
                במובייל (רוחב < 900px) - דסקטופ בלבד, כפותורי הניווט היעודיים.
             */
             function onSlideClick(e) {
-                /* מניעת כפילויות במובייל: אם מדובר בלחיצת מגע (שמטופלת ב-onTouchEnd), נתעלם */
-                if (Date.now() - lastTouchTime < 500) return;
+                const isFromTouch = (Date.now() - lastTouchTime < 500);
+
                 /* התעלם אזורי ממשק */
                 if (e.target.closest('#presentationNav')) return;
                 if (e.target.closest('.header, .toolbar-wrap, .toolbar, #toolbarWrap')) return;
@@ -8053,6 +8053,9 @@
 
                 /* התעלם אלמנטים אינטראקטיביים */
                 if (e.target.closest('button, input, select, textarea')) return;
+
+                /* מניעת כפילויות במובייל: אם מדובר בלחיצת מגע, לא נקדם שקף מכאן אלא רק מסוויפ */
+                if (isFromTouch) return;
 
                 advance();   /* כפתור שמאלי → קדימה */
             }
