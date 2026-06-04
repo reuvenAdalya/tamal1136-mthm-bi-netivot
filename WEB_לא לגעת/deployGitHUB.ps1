@@ -46,14 +46,7 @@ $parts = $fullFolderName -split ' ', 2
 $projectPart = if ($parts.Count -gt 1) { $parts[1] } else { $fullFolderName }
 $suggestedName = Get-TransliteratedName -InputString $projectPart
 
-# --- 4. אישור פרטים (Repo + Topic) ---
-$repoName = [Microsoft.VisualBasic.Interaction]::InputBox("Confirm Repo Name:", "GitHub Deploy", $suggestedName)
-if (!$repoName) { exit }
-
-$topicName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter Project Topic:", "GitHub Topic", "havitot")
-if (!$topicName) { $topicName = "havitot" }
-
-# --- 5. עבודת Git + פתרון Box ---
+# --- 4. הגדרת משתני סביבה ל-Git ---
 $gitDir = Join-Path $currentFolder.FullName ".git"
 $workTree = $workTreeFolder.FullName
 
@@ -67,6 +60,32 @@ Set-Location $workTree
 git config --global --add safe.directory $workTree.Replace('\', '/')
 git config --global --add safe.directory $currentFolder.FullName.Replace('\', '/')
 
+# --- 5. זיהוי מאגר קיים או קבלת פרטים למאגר חדש ---
+$isNewRepo = $true
+$repoName = ""
+
+if (Test-Path $gitDir) {
+    # ננסה לחלץ את שם המאגר הקיים כדי לא לשאול את המשתמש שוב
+    $remoteUrl = git remote get-url origin 2>$null
+    if ($remoteUrl) {
+        # מזהה את שם המאגר מהנתיב (למשל https://github.com/user/repo.git)
+        $repoName = ($remoteUrl -split '/')[-1] -replace '\.git$', ''
+        if ($repoName) {
+            $isNewRepo = $false
+            Write-Host "Found existing repository: $repoName. Skipping prompts." -ForegroundColor Green
+        }
+    }
+}
+
+if ($isNewRepo) {
+    $repoName = [Microsoft.VisualBasic.Interaction]::InputBox("Confirm Repo Name:", "GitHub Deploy", $suggestedName)
+    if (!$repoName) { exit }
+    
+    $topicName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter Project Topic:", "GitHub Topic", "havitot")
+    if (!$topicName) { $topicName = "havitot" }
+}
+
+# --- 6. עבודת Git (יצירה במידת הצורך) ---
 if (!(Test-Path $gitDir)) {
     git init
     git checkout -b main 2>$null
@@ -88,8 +107,10 @@ if (!$remoteExists) {
     }
 }
 
-# עדכון תגית
-gh repo edit $repoName --add-topic $topicName
+if ($isNewRepo -and $topicName) {
+    # עדכון תגית רק במאגר חדש שבו ביקשנו נושא
+    gh repo edit $repoName --add-topic $topicName 2>$null
+}
 
 # העלאת קבצים
 Write-Host "Pushing files to GitHub..." -ForegroundColor White

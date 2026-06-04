@@ -8095,6 +8095,30 @@
                 }
             });
 
+            /* ---- touch swipe ---- */
+            let touchStartY = 0;
+            let touchEndY = 0;
+            
+            document.addEventListener('touchstart', e => {
+                if (!document.body.classList.contains('presentation-mode')) return;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+
+            document.addEventListener('touchend', e => {
+                if (!document.body.classList.contains('presentation-mode')) return;
+                touchEndY = e.changedTouches[0].screenY;
+                const swipeDistance = touchEndY - touchStartY;
+                const minSwipeDistance = 50; // threshold
+                
+                if (swipeDistance > minSwipeDistance) {
+                    // Swipe down -> קדימה
+                    advance();
+                } else if (swipeDistance < -minSwipeDistance) {
+                    // Swipe up -> אחורה
+                    retreat();
+                }
+            }, { passive: true });
+
             /* ---- nav bar buttons ---- */
             document.getElementById('nextSlideBtn').addEventListener('click', advance);
             document.getElementById('prevSlideBtn').addEventListener('click', retreat);
@@ -8129,6 +8153,7 @@
                 }
                 disclaimerBtn.addEventListener('click', () => {
                     disclaimerOverlay.style.display = 'none';
+                    window.focus(); // Restore focus to document so keyboard events work immediately
                 });
             }
 
@@ -8137,6 +8162,11 @@
             window.exitPresentation = exitPresentation;
             window.showSlide = showSlide;
             window.getPresentationSlideGroups = () => slideGroups;
+
+            // Auto-init presentation mode if document was loaded with it
+            if (document.body.classList.contains('presentation-mode')) {
+                enterPresentation();
+            }
         })();
     </script>
 
