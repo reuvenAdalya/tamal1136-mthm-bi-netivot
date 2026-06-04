@@ -7771,9 +7771,11 @@
                 // החזרת המצב לקדמותו לאחר שהמשתמש סגר את חלון ההדפסה
                 setLockState(wasLocked, true);
 
+                /* בוטלה החזרה האוטומטית למצב מצגת כדי להבטיח שההדפסה (והמסך שאחריה) יישארו בתצוגה רציפה נמנעה התנגשות.
                 if (wasPresentation) {
                     if (typeof window.enterPresentation === 'function') window.enterPresentation();
                 }
+                */
 
                 document.title = originalTitle; // החזרת כותרת העמוד המקורית
                 // ליתר ביטחון נוודא שחלון הטעינה מוסתר
